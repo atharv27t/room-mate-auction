@@ -700,6 +700,21 @@ def show_admin():
     prefs = load_prefs()
     results = load_results()
 
+    # Admin banner image
+    img3_path = str(Path(__file__).parent / "static" / "img3.jpeg")
+    if Path(img3_path).exists():
+        import base64
+        with open(img3_path, "rb") as f:
+            b64 = base64.b64encode(f.read()).decode()
+        st.markdown(f"""
+        <div style="border-radius:16px;overflow:hidden;border:2px solid rgba(240,147,251,0.35);box-shadow:0 8px 32px rgba(240,147,251,0.15);margin:0.5rem 0 1.5rem 0">
+            <img src="data:image/jpeg;base64,{b64}" style="width:100%;height:300px;object-fit:cover;display:block" />
+            <div style="text-align:center;padding:10px;background:linear-gradient(135deg,rgba(15,12,41,0.95),rgba(48,43,99,0.95));color:#f093fb;font-weight:700;font-size:1.1rem">
+                🔑 Admin Control Center — Aravali Roommate Auction
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
     c1, c2, c3 = st.columns(3)
     c1.metric("Submissions", f"{len(prefs)}/{len(PARTICIPANTS)}")
     c2.metric("Locked", "Yes" if is_locked() else "No")

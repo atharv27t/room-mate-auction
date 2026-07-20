@@ -697,7 +697,11 @@ def show_admin():
             {p: {o: prefs.get(p, {}).get(o, "-") for o in PARTICIPANTS} for p in PARTICIPANTS if p in prefs}
         )
         if not df.empty:
-            st.dataframe(df.style.highlight_max(axis=0, color="#c8e6c9").highlight_min(axis=0, color="#ffcdd2"), use_container_width=True)
+            try:
+                df_num = df.apply(pd.to_numeric, errors="coerce")
+                st.dataframe(df_num.style.highlight_max(axis=0, color="#c8e6c9").highlight_min(axis=0, color="#ffcdd2"), use_container_width=True)
+            except Exception:
+                st.dataframe(df, use_container_width=True)
 
     # Cycles
     if len(prefs) >= 2:

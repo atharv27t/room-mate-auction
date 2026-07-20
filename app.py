@@ -317,22 +317,22 @@ div[data-testid="stMetricLabel"] { color: #b8b8d4 !important; }
 .streamlit-expanderHeader { color: #b8b8d4 !important; font-weight: 600; }
 
 .hero-gallery {
-    display: flex; gap: 16px; justify-content: center;
-    margin: 1.5rem 0 0.5rem 0; flex-wrap: wrap;
+    display: flex; justify-content: center;
+    margin: 1.5rem 0 0.5rem 0;
 }
 .hero-img-wrapper {
-    flex: 1; min-width: 280px; max-width: 48%;
+    width: 100%;
     border-radius: 16px; overflow: hidden;
     border: 2px solid rgba(240,147,251,0.35);
     box-shadow: 0 8px 32px rgba(240,147,251,0.15), 0 2px 8px rgba(0,0,0,0.3);
     transition: transform 0.3s, border-color 0.3s;
 }
 .hero-img-wrapper:hover {
-    transform: translateY(-4px) scale(1.01);
+    transform: translateY(-3px);
     border-color: rgba(245,87,108,0.6);
 }
 .hero-img-wrapper img {
-    width: 100%; height: 280px; object-fit: cover; display: block;
+    width: 100%; height: auto; display: block; max-height: 420px; object-fit: contain;
 }
 .hero-caption {
     text-align: center; padding: 8px 12px;
@@ -391,7 +391,7 @@ def show_login():
             b64 = base64.b64encode(f.read()).decode()
         st.markdown(f"""
         <div class="hero-gallery">
-            <div class="hero-img-wrapper" style="max-width:100%;min-width:100%">
+            <div class="hero-img-wrapper">
                 <img src="data:image/jpeg;base64,{b64}" alt="Aravali" />
                 <div class="hero-caption">💘 Aravali Roommate Auction — Find Your Perfect Match</div>
             </div>

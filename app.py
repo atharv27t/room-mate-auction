@@ -687,6 +687,33 @@ def show_admin():
     c2.metric("Locked", "Yes" if is_locked() else "No")
     c3.metric("Results", "Ready" if results else "Pending")
 
+    # Live preview matching (even with partial submissions)
+    if len(prefs) >= 2:
+        st.subheader("👁️ Live Matching Preview (based on submitted prefs)")
+        st.caption("Shows what the algorithm would pick right now. Updates live as people submit.")
+        if len(prefs) < len(PARTICIPANTS):
+            missing_names = [p for p in PARTICIPANTS if p not in prefs]
+            st.warning(f"⚠️ Only {len(prefs)}/{len(PARTICIPANTS)} submitted — missing: {', '.join(missing_names)}. Preview uses only available data.")
+
+        preview_rooms = run_3_algo_consensus(list(prefs.keys()), prefs)
+        for i, room in enumerate(preview_rooms):
+            members_str = " ❤️ ".join(room["members"])
+            sc = room["score"]
+            badge_cls = 'fire' if sc >= 4 else 'great' if sc >= 3.5 else 'ok'
+            indiv = []
+            for m in room["members"]:
+                partner = [x for x in room["members"] if x != m]
+                if partner:
+                    indiv.append(f"{m}→{partner[0]}: {room['individual_scores'].get(m, '?')}")
+            st.markdown(f"""
+            <div class="match-card">
+                <h3>Room {i+1} <span style="font-size:0.75rem;color:#888">(preview)</span></h3>
+                <div class="names">{members_str}</div>
+                <span class="score-badge {badge_cls}">Score: {sc:.1f}/5.0</span>
+                <div style="margin-top:6px;color:#b8b8d4;font-size:0.85rem">{" | ".join(indiv)}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
     # Full preference matrix
     st.subheader("📋 Full Preference Matrix")
     if prefs:

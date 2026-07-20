@@ -383,25 +383,17 @@ def show_login():
     st.markdown('<div class="tagline">"Find your Aravali roommates"</div>', unsafe_allow_html=True)
     st.markdown("---")
 
-    # Hero gallery
-    img1_path = str(Path(__file__).parent / "static" / "img1.jpeg")
-    img2_path = str(Path(__file__).parent / "static" / "img2.jpeg")
-    if Path(img1_path).exists() and Path(img2_path).exists():
+    # Hero image
+    img3_path = str(Path(__file__).parent / "static" / "img3.jpeg")
+    if Path(img3_path).exists():
         import base64
-        def img_to_base64(path):
-            with open(path, "rb") as f:
-                return base64.b64encode(f.read()).decode()
-        b64_1 = img_to_base64(img1_path)
-        b64_2 = img_to_base64(img2_path)
+        with open(img3_path, "rb") as f:
+            b64 = base64.b64encode(f.read()).decode()
         st.markdown(f"""
         <div class="hero-gallery">
-            <div class="hero-img-wrapper">
-                <img src="data:image/jpeg;base64,{b64_1}" alt="Aravali vibe 1" />
-                <div class="hero-caption">💘 Aravali — Where Roommates Find Each Other</div>
-            </div>
-            <div class="hero-img-wrapper">
-                <img src="data:image/jpeg;base64,{b64_2}" alt="Aravali vibe 2" />
-                <div class="hero-caption">🏠 Fair, Private, Algorithm-Driven Matching</div>
+            <div class="hero-img-wrapper" style="max-width:100%;min-width:100%">
+                <img src="data:image/jpeg;base64,{b64}" alt="Aravali" />
+                <div class="hero-caption">💘 Aravali Roommate Auction — Find Your Perfect Match</div>
             </div>
         </div>
         """, unsafe_allow_html=True)

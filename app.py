@@ -194,22 +194,6 @@ def auction_based_matcher(participants, preferences):
     return rooms
 
 def run_3_algo_consensus(participants, preferences):
-    pts = list(participants)
-    n = len(pts)
-    if n <= 3:
-        # With 3 or fewer people, just put them all in one room
-        sc = 0
-        c = 0
-        indiv = {}
-        for a, b in combinations(pts, 2):
-            s1 = preferences.get(a, {}).get(b, 0)
-            s2 = preferences.get(b, {}).get(a, 0)
-            sc += (s1 + s2) / 2
-            c += 1
-            indiv[a] = round(np.mean([preferences.get(a, {}).get(x, 0) for x in pts if x != a]), 2)
-            indiv[b] = round(np.mean([preferences.get(b, {}).get(x, 0) for x in pts if x != b]), 2)
-        avg_sc = round(sc / c, 2) if c else 0
-        return [{"members": pts, "score": avg_sc, "individual_scores": indiv}]
     m = mutual_preference_matcher(participants, preferences)
     i = irving_algorithm(participants, preferences)
     a = auction_based_matcher(participants, preferences)
@@ -379,7 +363,7 @@ if "page" not in st.session_state:
 # ═══════════════════════════════════════════════════════════════════════
 def show_login():
     st.markdown('<div class="main-title">💘 Aravali Roommate Auction</div>', unsafe_allow_html=True)
-    st.markdown('<div class="sub-title">3 legends • 1 room of 3 • everyone together</div>', unsafe_allow_html=True)
+    st.markdown('<div class="sub-title">3 people • 2-person rooms • 1 room + 1 wildcard</div>', unsafe_allow_html=True)
     st.markdown('<div class="tagline">"Find your Aravali roommates"</div>', unsafe_allow_html=True)
     st.markdown("---")
 

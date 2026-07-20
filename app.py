@@ -635,8 +635,8 @@ def show_results():
             </span>
         </div>
         <div style="margin-top:20px; color:#b8b8d4">
-            <p>You rated {my_roommate}: <b>{'❤️' * sa} ({sa}/5)</b></p>
-            <p>{my_roommate} rated you: <b>{'❤️' * sb} ({sb}/5)</b></p>
+            <p>You rated {my_roommate}: <b>{'❤️' * int(sa)} ({sa}/5)</b></p>
+            <p>{my_roommate} rated you: <b>{'❤️' * int(sb)} ({sb}/5)</b></p>
         </div>
         <div style="margin-top:15px; color:#888; font-size:0.85rem">
             Room #{room_num} &nbsp;|&nbsp; Algorithm: {results.get('algo', 'Consensus')}

@@ -4,6 +4,7 @@ import numpy as np
 from collections import defaultdict
 import json
 import plotly.express as px
+import plotly.graph_objects as go
 import random
 from datetime import datetime
 from pathlib import Path
@@ -761,6 +762,199 @@ def show_admin():
             fig2 = px.imshow(df_h.values, x=list(df_h.columns), y=list(df_h.index), color_continuous_scale="RdPu", text_auto=True)
             fig2.update_layout(height=600, paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#b8b8d4"))
             st.plotly_chart(fig2, use_container_width=True)
+
+    # ── CRAZY VISUALS ───────────────────────────────────────────────
+    if prefs and len(prefs) >= 2:
+        st.markdown("---")
+        st.markdown("## 🧪 Deep Analytics Lab")
+
+        # 1) Preference Radar Charts per person
+        st.subheader("🕸️ Preference Profiles (Radar Charts)")
+        radar_people = list(prefs.keys())
+        cols_r = st.columns(min(3, len(radar_people)))
+        for idx, person in enumerate(radar_people):
+            others = [o for o in PARTICIPANTS if o != person and o in prefs]
+            values = [prefs.get(person, {}).get(o, 0) for o in others]
+            values.append(values[0]) if len(values) > 0 else None
+            others_closed = others + [others[0]] if others else []
+            fig_radar = go.Figure(go.Scatterpolar(
+                r=values, theta=others_closed, fill='toself',
+                line=dict(color='#f093fb'), fillcolor='rgba(240,147,251,0.2)',
+                name=person
+            ))
+            fig_radar.update_layout(
+                polar=dict(
+                    radialaxis=dict(visible=True, range=[0, 5], color='#b8b8d4'),
+                    angularaxis=dict(color='#b8b8d4'),
+                    bgcolor='rgba(0,0,0,0)',
+                ),
+                showlegend=False, height=320, margin=dict(t=30, b=30, l=40, r=40),
+                paper_bgcolor='rgba(0,0,0,0)',
+            )
+            with cols_r[idx % len(cols_r)]:
+                st.markdown(f"**{person}**")
+                st.plotly_chart(fig_radar, use_container_width=True)
+
+        # 2) Pickiness Score + Personality Insights
+        st.subheader("🎭 Personality Insights")
+        col_a, col_b = st.columns(2)
+        with col_a:
+            st.markdown("**🔴 Pickiest People** (high std dev = very selective)")
+            pickiness = {}
+            for p in prefs:
+                ratings = list(prefs[p].values())
+                pickiness[p] = round(np.std(ratings), 2)
+            df_pick = pd.DataFrame(sorted(pickiness.items(), key=lambda x: -x[1]), columns=["Person", "Pickiness"])
+            fig_pick = px.bar(df_pick, x="Person", y="Pickiness", color="Pickiness",
+                              color_continuous_scale="Inferno", title="How selective is each person?")
+            fig_pick.update_layout(paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#b8b8d4"))
+            st.plotly_chart(fig_pick, use_container_width=True)
+
+        with col_b:
+            st.markdown("**🟢 Friendliest People** (high avg = likes everyone)")
+            friendliness = {}
+            for p in prefs:
+                ratings = list(prefs[p].values())
+                friendliness[p] = round(np.mean(ratings), 2)
+            df_friend = pd.DataFrame(sorted(friendliness.items(), key=lambda x: -x[1]), columns=["Person", "Avg Rating Given"])
+            fig_friend = px.bar(df_friend, x="Person", y="Avg Rating Given", color="Avg Rating Given",
+                                color_continuous_scale="Greens", title="Who gives the highest ratings?")
+            fig_friend.update_layout(yaxis=dict(range=[0, 5.5]), paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#b8b8d4"))
+            st.plotly_chart(fig_friend, use_container_width=True)
+
+        # 3) Dream Pairs & Nightmare Pairs
+        st.subheader("💕 Dream Pairs vs 💀 Nightmare Pairs")
+        all_pairs = []
+        for i, p1 in enumerate(list(prefs.keys())):
+            for p2 in list(prefs.keys())[i+1:]:
+                s1 = prefs.get(p1, {}).get(p2, 0)
+                s2 = prefs.get(p2, {}).get(p1, 0)
+                avg = (s1 + s2) / 2
+                all_pairs.append({"Pair": f"{p1} ↔ {p2}", "Mutual Score": avg, "P1→P2": s1, "P2→P1": s2})
+        df_pairs = pd.DataFrame(all_pairs).sort_values("Mutual Score", ascending=False)
+
+        col_dream, col_nightmare = st.columns(2)
+        with col_dream:
+            st.markdown("**💕 Top 5 Dream Pairs**")
+            for _, row in df_pairs.head(5).iterrows():
+                st.markdown(f'<div class="good-match"><b>{row["Pair"]}</b> — score {row["Mutual Score"]:.1f}</div>', unsafe_allow_html=True)
+        with col_nightmare:
+            st.markdown("**💀 Bottom 5 Pairs**")
+            for _, row in df_pairs.tail(5).iterrows():
+                st.markdown(f'<div style="background:rgba(245,87,108,0.1);border-left:3px solid #f5576c;padding:0.7rem 1rem;border-radius:8px;margin:0.3rem 0;color:#f5576c"><b>{row["Pair"]}</b> — score {row["Mutual Score"]:.1f}</div>', unsafe_allow_html=True)
+
+        # 4) Rating Distribution Box Plot per person
+        st.subheader("📊 Rating Distribution (Box Plot)")
+        box_data = []
+        for p in prefs:
+            for o, v in prefs[p].items():
+                box_data.append({"Rater": p, "Rating": v})
+        df_box = pd.DataFrame(box_data)
+        fig_box = px.box(df_box, x="Rater", y="Rating", color="Rater",
+                         color_discrete_sequence=px.colors.qualitative.Set2,
+                         title="Spread of ratings each person gives")
+        fig_box.update_layout(yaxis=dict(range=[0, 5.5]), showlegend=False,
+                              paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#b8b8d4"))
+        st.plotly_chart(fig_box, use_container_width=True)
+
+        # 5) Preference Flow (Sankey-style as scatter with arrows)
+        st.subheader("🔀 Preference Flow Network")
+        st.caption("Each line = a rating of 4 or 5. Thicker + brighter = stronger desire.")
+        flow_nodes = list(prefs.keys())
+        node_idx = {n: i for i, n in enumerate(flow_nodes)}
+        flow_x, flow_y, flow_tx, flow_ty, flow_val, flow_text = [], [], [], [], [], []
+        np.random.seed(42)
+        angle_map = {n: 2 * np.pi * i / len(flow_nodes) for i, n in enumerate(flow_nodes)}
+        cx, cy = 0.5, 0.5
+        node_pos = {}
+        for n in flow_nodes:
+            node_pos[n] = (cx + 0.35 * np.cos(angle_map[n]), cy + 0.35 * np.sin(angle_map[n]))
+        fig_flow = go.Figure()
+        colors_map = {5: '#f5576c', 4: '#f093fb', 3: '#667eea'}
+        for p in flow_nodes:
+            for o in flow_nodes:
+                if p != o:
+                    rating = prefs.get(p, {}).get(o, 0)
+                    if rating >= 3:
+                        x0, y0 = node_pos[p]
+                        x1, y1 = node_pos[o]
+                        fig_flow.add_trace(go.Scatter(
+                            x=[x0, x1], y=[y0, y1], mode='lines',
+                            line=dict(width=rating * 0.8, color=colors_map.get(rating, '#888'), dash='dot' if rating < 4 else 'solid'),
+                            opacity=0.6, hoverinfo='text',
+                            text=f"{p} → {o}: {rating}/5"
+                        ))
+        for n in flow_nodes:
+            x, y = node_pos[n]
+            fig_flow.add_trace(go.Scatter(
+                x=[x], y=[y], mode='markers+text', marker=dict(size=30, color='#302b63', line=dict(color='#f093fb', width=2)),
+                text=[n], textposition='top center', textfont=dict(color='white', size=11),
+                hoverinfo='text',
+            ))
+        fig_flow.update_layout(
+            showlegend=False, height=500, xaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            yaxis=dict(showgrid=False, zeroline=False, showticklabels=False),
+            paper_bgcolor='rgba(0,0,0,0)', plot_bgcolor='rgba(0,0,0,0)',
+            title="Who wants whom? (only 3+ ratings shown)",
+        )
+        st.plotly_chart(fig_flow, use_container_width=True)
+
+        # 6) Mutual Score Heatmap (who would be happy together)
+        st.subheader("🤝 Mutual Compatibility Matrix")
+        mutual_data = {}
+        for p1 in flow_nodes:
+            mutual_data[p1] = {}
+            for p2 in flow_nodes:
+                if p1 == p2:
+                    mutual_data[p1][p2] = 0
+                else:
+                    s1 = prefs.get(p1, {}).get(p2, 0)
+                    s2 = prefs.get(p2, {}).get(p1, 0)
+                    mutual_data[p1][p2] = (s1 + s2) / 2
+        df_mutual = pd.DataFrame(mutual_data)
+        fig_mut = px.imshow(df_mutual.values, x=list(df_mutual.columns), y=list(df_mutual.index),
+                            color_continuous_scale="RdYlGn", text_auto=True,
+                            labels=dict(color="Mutual Score"))
+        fig_mut.update_layout(height=550, paper_bgcolor="rgba(0,0,0,0)", font=dict(color="#b8b8d4"))
+        st.plotly_chart(fig_mut, use_container_width=True)
+        st.caption("Green = both would be happy. Red = one or both would be unhappy.")
+
+        # 7) Happiness Balance (would both people be equally happy?)
+        st.subheader("⚖️ Happiness Balance")
+        balance_data = []
+        for p1 in flow_nodes:
+            for p2 in flow_nodes:
+                if p1 < p2:
+                    s1 = prefs.get(p1, {}).get(p2, 0)
+                    s2 = prefs.get(p2, {}).get(p1, 0)
+                    balance_data.append({
+                        "Pair": f"{p1} ↔ {p2}",
+                        f"{p1}'s rating": s1,
+                        f"{p2}'s rating": s2,
+                        "Gap": abs(s1 - s2),
+                    })
+        df_bal = pd.DataFrame(balance_data).sort_values("Gap", ascending=False)
+        fig_bal = go.Figure()
+        for _, row in df_bal.iterrows():
+            pair = row["Pair"]
+            names = pair.split(" ↔ ")
+            fig_bal.add_trace(go.Bar(
+                x=[names[0]], y=[row.iloc[1]], name=pair,
+                marker_color='#f093fb', showlegend=False, opacity=0.8,
+                text=[f"{row.iloc[1]}"], textposition='inside'
+            ))
+            fig_bal.add_trace(go.Bar(
+                x=[names[1]], y=[row.iloc[2]], name=pair,
+                marker_color='#f5576c', showlegend=False, opacity=0.8,
+                text=[f"{row.iloc[2]}"], textposition='inside'
+            ))
+        fig_bal.update_layout(
+            barmode='group', title="Rating asymmetry — how lopsided are preferences?",
+            paper_bgcolor="rgba(0,0,0,0)", plot_bgcolor="rgba(0,0,0,0)", font=dict(color="#b8b8d4"),
+            yaxis=dict(range=[0, 5.5])
+        )
+        st.plotly_chart(fig_bal, use_container_width=True)
+        st.caption("Big gaps = one person wants the other much more than vice versa. Ideally all bars should be equal height.")
 
     # Results
     if results:

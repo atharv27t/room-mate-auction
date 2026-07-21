@@ -488,18 +488,6 @@ def show_home():
                     else:
                         st.error("Auction not found. Check the code.")
 
-            auctions = list_auctions()
-            if auctions:
-                st.divider()
-                st.markdown("**:material/list: Active Auctions**")
-                for a in auctions[:5]:
-                    locked = is_locked(a["id"])
-                    status = "Locked" if locked else f"{len(load_prefs(a['id']))}/{len(a['participants'])} submitted"
-                    if st.button(f"**{a['group_name']}** ({a['id']})  \u2014  {status}", key=f"join_{a['id']}", use_container_width=True):
-                        st.session_state.auction_id = a["id"]
-                        st.session_state.page = "login"
-                        st.rerun()
-
     st.divider()
     st.caption("Made with :material/favorite: by **Atharv**  |  Instagram: [@atharvv_t](https://instagram.com/atharvv_t)")
 

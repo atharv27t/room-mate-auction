@@ -474,7 +474,7 @@ def show_home():
 
     with col2:
         with st.container(border=True):
-            st.markdown("**:material/Link: Join Existing Auction**")
+            st.markdown("**:material/link: Join Existing Auction**")
             st.caption("Enter the auction code shared by your group")
             join_code = st.text_input("Auction Code", key="join_code", placeholder="e.g. ABC123").strip().upper()
 

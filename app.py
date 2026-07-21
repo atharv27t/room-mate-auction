@@ -489,6 +489,70 @@ def show_home():
                         st.error("Auction not found. Check the code.")
 
     st.divider()
+
+    # Detailed explanation
+    st.markdown(
+        '<div style="text-align:center;padding:0.5rem 0 1rem 0">'
+        '<div style="font-family:\'Space Grotesk\',sans-serif;font-size:1.4rem;font-weight:700;color:#f1f5f9">How Does This Work?</div>'
+        '<div style="font-size:0.85rem;color:#64748b;margin-top:0.3rem">A fair, private, algorithm-driven roommate matching system</div>'
+        '</div>', unsafe_allow_html=True)
+
+    step_html = """
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:0.5rem 0 1.5rem 0">
+
+        <div style="background:rgba(6,182,212,0.05);border:1px solid rgba(6,182,212,0.15);border-radius:14px;padding:1.3rem 1.5rem">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                <div style="width:32px;height:32px;border-radius:50%;background:rgba(6,182,212,0.2);color:#06b6d4;font-size:0.8rem;font-weight:800;display:flex;align-items:center;justify-content:center">1</div>
+                <div style="font-weight:700;color:#e2e8f0;font-size:0.95rem">Create an Auction</div>
+            </div>
+            <div style="color:#94a3b8;font-size:0.82rem;line-height:1.6">
+                One person creates an auction for their flat or group. Enter a group name (like "Aravali Block A"), add all the people in your group, and hit create. You'll get a <b style="color:#06b6d4">6-letter code</b> (like X7K2MP) that everyone in the group needs to join.
+            </div>
+        </div>
+
+        <div style="background:rgba(6,182,212,0.05);border:1px solid rgba(6,182,212,0.15);border-radius:14px;padding:1.3rem 1.5rem">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                <div style="width:32px;height:32px;border-radius:50%;background:rgba(6,182,212,0.2);color:#06b6d4;font-size:0.8rem;font-weight:800;display:flex;align-items:center;justify-content:center">2</div>
+                <div style="font-weight:700;color:#e2e8f0;font-size:0.95rem">Everyone Joins & Rates</div>
+            </div>
+            <div style="color:#94a3b8;font-size:0.82rem;line-height:1.6">
+                Each person visits this site, enters the code, selects their name, and rates every other person from <b style="color:#06b6d4">1 (Nope)</b> to <b style="color:#06b6d4">5 (Dream roommate)</b>. These ratings are <b style="color:#f1f5f9">completely private</b> — nobody can see what you rated them.
+            </div>
+        </div>
+
+        <div style="background:rgba(6,182,212,0.05);border:1px solid rgba(6,182,212,0.15);border-radius:14px;padding:1.3rem 1.5rem">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                <div style="width:32px;height:32px;border-radius:50%;background:rgba(6,182,212,0.2);color:#06b6d4;font-size:0.8rem;font-weight:800;display:flex;align-items:center;justify-content:center">3</div>
+                <div style="font-weight:700;color:#e2e8f0;font-size:0.95rem">Lock & Run the Algorithm</div>
+            </div>
+            <div style="color:#94a3b8;font-size:0.82rem;line-height:1.6">
+                Once everyone has submitted their ratings, the creator (or anyone) clicks "Lock & Run". The system runs <b style="color:#f1f5f9">3 different matching algorithms</b> — Mutual Preference, Irving's Algorithm, and Auction-Based Matching — and picks the one that gives the <b style="color:#06b6d4">best overall satisfaction</b> across the group.
+            </div>
+        </div>
+
+        <div style="background:rgba(6,182,212,0.05);border:1px solid rgba(6,182,212,0.15);border-radius:14px;padding:1.3rem 1.5rem">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
+                <div style="width:32px;height:32px;border-radius:50%;background:rgba(6,182,212,0.2);color:#06b6d4;font-size:0.8rem;font-weight:800;display:flex;align-items:center;justify-content:center">4</div>
+                <div style="font-weight:700;color:#e2e8f0;font-size:0.95rem">See Your Perfect Match</div>
+            </div>
+            <div style="color:#94a3b8;font-size:0.82rem;line-height:1.6">
+                Log back in and see who the algorithm matched you with. You'll get a <b style="color:#06b6d4">compatibility score</b>, how you rated each other, and whether it's a dream match or a solid fit. The admin can also see full analytics like preference heatmaps, dream pairs, and a Monte Carlo simulation showing how much better this matching is compared to random pairing.
+            </div>
+        </div>
+
+    </div>
+
+    <div style="background:rgba(17,24,39,0.8);border:1px solid rgba(255,255,255,0.07);border-radius:14px;padding:1.3rem 1.8rem;margin-bottom:1.5rem">
+        <div style="font-weight:700;color:#e2e8f0;font-size:0.95rem;margin-bottom:10px">Why Is This Better Than Drawing Lots?</div>
+        <div style="color:#94a3b8;font-size:0.82rem;line-height:1.7">
+            Random assignment doesn't care about who you actually want to live with. This system uses <b style="color:#f1f5f9">game theory and stable matching algorithms</b> (the same math used in hospital-resident matching and school admissions) to find the fairest possible pairing. It considers <b style="color:#f1f5f9">mutual preferences</b>, avoids <b style="color:#f1f5f9">unstable matches</b> where two people would rather swap, and maximizes overall happiness. Plus, your ratings are <b style="color:#f1f5f9">100% private</b> — you'll never have an awkward conversation about who rated whom a 2.
+        </div>
+    </div>
+    """
+
+    st.markdown(step_html, unsafe_allow_html=True)
+
+    st.divider()
     st.caption("Made with :material/favorite: by **Atharv**  |  Instagram: [@atharvv_t](https://instagram.com/atharvv_t)")
 
 
